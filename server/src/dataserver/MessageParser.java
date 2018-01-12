@@ -1,6 +1,7 @@
 package dataserver;
 
 
+import dataserver.DataServer.OhSamRequestHandler;
 import util.messages.*;
 
 
@@ -22,7 +23,9 @@ public class MessageParser {
 	 * @param message
 	 */
 	protected void parse(Message message) {
-		
+
+		System.out.println("message from\t" + message.sender().addr() + "\t:\t" + message);
+		 
 		// CHECK TO SEE IF WE'RE ASLEEP
 		if (!this.server.awake) {
 			if (message.getFlag().equals("wake"))
@@ -34,7 +37,6 @@ public class MessageParser {
 		
 		
 		
-		System.out.println("message from\t" + message.sender().addr() + "\t:\t" + message);
 		String flag = message.getFlag();
 		// Pings another server; used for testing
 		// TODO	deprecate this
@@ -55,7 +57,11 @@ public class MessageParser {
 					((ReadRequestMessage) message).getReqID() + "");
 			
 		}
-		
+		else if (message instanceof OhSamReturnMessage) {
+			for (OhSamRequestHandler request : this.server.ohsamrequests)
+				if (request.key.equals(((OhSamReturnMessage) message).getKey()))
+					request.addResponse(((OhSamReturnMessage) message));
+		}
 		// Test Cases
 		else if (flag.equals("respond"))
 			this.server.send(new Message(message.recipient(), message.sender(),"response"));

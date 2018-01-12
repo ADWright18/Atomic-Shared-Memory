@@ -1,6 +1,7 @@
 package dataserver;
 
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import util.Address;
@@ -36,13 +37,15 @@ public class MemoryDataServer extends DataServer {
 	 * @param serverid	The identification number that distinguishes this DataServer from other DataServers
 	 * @param ADDRESSES	The other servers in the network; this object is stored as a volatile array and can be updated
 	 * @param port	The port at the local address that this object should listen to for UDP messages
+	 * @throws UnknownHostException 
 	 */
-	public MemoryDataServer(int serverid, int port, String address) throws SocketException {
-		super(serverid, port, address);
+	public MemoryDataServer(int serverid, int port, String address, String algorithm, Address[] addresses) throws SocketException, UnknownHostException {
+		super(serverid, port, address, algorithm, addresses);
 	}
-
 	
-	protected void write(String key, String value, String timestamp, Address returnAddress, String reqid) {
+	
+	
+	protected void commitData(String key, String value, String timestamp, Address returnAddress, String reqid) {
 		
 		if (this.DATA.containsKey(key)) {
 			int localStamp = Integer.parseInt(this.TIME.get(key));
@@ -64,7 +67,6 @@ public class MemoryDataServer extends DataServer {
 				new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), 
 				returnAddress, 
 				reqid, 
-				DataServer.WRITE_RECEIPT_FLAG,
 				this.id + "",
 				key);
 		
@@ -80,12 +82,11 @@ public class MemoryDataServer extends DataServer {
 		String timestamp = this.TIME.get(key);
 		
 		if (value == null && timestamp == null)
-			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, "read-return", this.id + "", "-1", "null"));
+			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, this.id + "", "-1", "null"));
 		else if (value == null || timestamp == null)
-			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, "read-return", this.id + "",  "-1", "data-sync-error"));
-		else {
-			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, "read-return", this.id + "", timestamp, value));
-		}
+			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, this.id + "",  "-1", "data-sync-error"));
+		else
+			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, this.id + "", timestamp, value));
 	}
 	
 	

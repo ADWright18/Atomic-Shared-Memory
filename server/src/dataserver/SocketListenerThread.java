@@ -59,11 +59,10 @@ public class SocketListenerThread extends MessageListenerThread {
 
 			if (packet != null) {
 				String s = "";
-
 				for (byte b : packet.getData())
 					if (b != 0)
 						s = s + (char) b;
-
+				System.out.println(": " + s);
 				return Message.construct(new Address(packet.getAddress(), packet.getPort()), localAddress, s.trim());
 			}
 

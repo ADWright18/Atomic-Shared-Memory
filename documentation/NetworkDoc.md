@@ -13,19 +13,31 @@
           * pcid  : the 8 bit hexadecimal id of the machine that sent the message (the server machine); higher value takes priority in ties
           * val   : the String value to be returned
           * seqid : the 8 bit hexadecimal value that identifies how fresh this value is; where higher values are fresher
-        "write" request   : <reqid>:<flag>:<pcid>:<seqid>:<key>:<val>:
+        "write" request   : <reqid>:<flag>:<pcid>:<seqid>:<key>:<val>
           * reqid : the hexadecimal local timestamp of the client that sent the request to keep track of which requests are outdated
           * flag  : the String showing message type; this would be "write-request"
           * pcid  : the 8 bit hexadecimal id of the machine that sent the message (the client machine); higher value takes priority in ties
           * key   : the id of where <val> will be written
           * val   : the String value to be written
-          * seqid : the 8 bit hexadecimal value that identifies how fresh this value is; higher values are fresher
-          
-          "write" return  : <reqid>:<flag>:<pcid>:<key>
+          * seqid : the 8 bit hexadecimal value that identifies how fresh this value is; higher values are fresher 
+         "write" return  : <reqid>:<flag>:<pcid>:<key>
           * reqid : the hexadecimal local timestamp of the client that sent the request to keep track of which requests are outdated
           * flag  : the String showing message type; this would be "write-return"
           * pcid  : the 8 bit hexadecimal id of the machine that sent the message (the client machine); higher value takes priority in ties
           * key   : the id of where <val> will be written
+	 "ohsam-relay" write: <reqid>:<flag>:<pcid>:<seqid>:<key> 
+	  * reqid : the hexadecimal local timestamp of the client that sent the request to keep track of which requests are outdated
+          * flag  : the String showing message type; this would be "ohsam-relay-write"
+          * pcid  : the 8 bit hexadecimal id of the machine that sent the message (the client machine); higher value takes priority in ties
+          * key   : the id of where <val> will be written
+          * seqid : the 8 bit hexadecimal value that identifies how fresh this value is; higher values are fresher
+	 "ohsam-relay" return: <reqid>:<flag>:<pcid>:<seqid>:<key>:<val> 
+	  * reqid : the hexadecimal local timestamp of the client that sent the request to keep track of which requests are outdated
+          * flag  : the String showing message type; this would be "ohsam-relay-return"
+          * pcid  : the 8 bit hexadecimal id of the machine that sent the message (the client machine); higher value takes priority in ties
+          * key   : the id of where <val> will be written
+          * val   : the String value to be written
+          * seqid : the 8 bit hexadecimal value that identifies how fresh this value is; higher values are fresher
           
         
     Note that the order of this message is important. If we have a "write" operation, then we know that <val> is a key/value pair.

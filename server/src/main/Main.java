@@ -1,8 +1,11 @@
 package main;
 
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import dataserver.MemoryDataServer;
+import util.Address;
 
 /**
  * 
@@ -26,17 +29,22 @@ import dataserver.MemoryDataServer;
  *
  */
 public class Main {
+	
+	public static final String OHSAM_FLAG = "ohsam";
+	
 	public static void main(String[] args) {
 		
 		// address the developer last had on their machine so they could run the project from the IDE and not
 		// the terminal
 		
-		String address;
+		String address, algorithm;
 		int port;
+		String[] addresses = {""};
 		
 		if (args.length == 0) {
-			 address = "137.99.128.56";
+			 address = "172.27.165.33";
 			 port = 2000;
+			 algorithm = "adb";
 		}
 		
 		else if (args[0].equals("-h") || args[0].equals("--h") || args[0].equals("help")) {
@@ -47,11 +55,17 @@ public class Main {
 		else {
 			address = args[0];
 			port = Integer.parseInt(args[1]);
+			algorithm = args[2];
+			
+			if (algorithm.equals("ohsam")) {
+				addresses = args[3].split(";");
+			}
+			
 		}
 
 
 		
-		process(address, port);
+		process(address, port, algorithm, addresses);
 		
 		
 	
@@ -59,12 +73,36 @@ public class Main {
 
 
 	}
-	
-	public static void process(String address, int port) {
+	private static Address getAddressFromPair(String pair) {
+		InetAddress inet;
+		int port;
+		
+		if (pair.length() == 0)
+			return null;
+		
+		String[] parts = pair.split(":");
+		try {
+			inet = InetAddress.getByName(parts[0]);
+		} catch (UnknownHostException e) {
+			System.out.println("ERROR: '" + parts[0] + "' is not a valid IP Address");
+			return null;
+		}
+		port = Integer.parseInt(parts[1]);
+		
+		return new Address(inet, port);
+	}
+	public static void process(String address, int port, String algorithm, String[] addressesStr) {
 		
 		MemoryDataServer server;
+		
+		Address[] addresses = new Address[addressesStr.length];
+		
+		for (int i = 0; i < addresses.length; i++)
+			addresses[i] = getAddressFromPair(addressesStr[i]);
+		
+		
 		try {
-			server = new MemoryDataServer(0, port, address);
+			server = new MemoryDataServer(0, port, address, algorithm, addresses);
 			Thread serverThread = server.start();
 			serverThread.join();
 			server.close();
@@ -72,7 +110,11 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SocketException e) {
-			process(address, port + 1);
+			e.printStackTrace();
+			process(address, port + 1, algorithm, addressesStr);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
