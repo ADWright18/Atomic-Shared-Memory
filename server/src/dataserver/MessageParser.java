@@ -38,8 +38,6 @@ public class MessageParser {
 		
 		
 		String flag = message.getFlag();
-		// Pings another server; used for testing
-		// TODO	deprecate this
 		
 		
 		if (message instanceof WriteRequestMessage) {
@@ -61,6 +59,9 @@ public class MessageParser {
 			for (OhSamRequestHandler request : this.server.ohsamrequests)
 				if (request.key.equals(((OhSamReturnMessage) message).getKey()))
 					request.addResponse(((OhSamReturnMessage) message));
+		}
+		else if (message instanceof OhSamRequestMessage) {
+			this.server.ohsamrelay(message.sender(), ((OhSamRequestMessage) message));
 		}
 		// Test Cases
 		else if (flag.equals("respond"))

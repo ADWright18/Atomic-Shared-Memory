@@ -1,0 +1,9 @@
+newserverset a
+newserver x 172.27.165.33 2001
+addserverset a x
+newserver y 172.27.165.33 2002
+addserverset a y
+newserver z 172.27.165.33 2003
+addserverset a z
+newclient client 1 2000 a
+write client key value

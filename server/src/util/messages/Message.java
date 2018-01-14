@@ -1,5 +1,6 @@
 package util.messages;
 
+import dataserver.DataServer;
 import util.Address;
 
 /**
@@ -73,10 +74,14 @@ public class Message {
 		String flag = out.getFlag();
 		if (flag == null) 
 			return out;
-		else if (flag.equals("read-request"))
+		else if (flag.equals(DataServer.READ_REQUEST_FLAG))
 			return new ReadRequestMessage(recipient, sender, message);
-		else if (flag.equals("write-request"))
+		else if (flag.equals(DataServer.WRITE_REQUEST_FLAG))
 			return new WriteRequestMessage(recipient, sender, message);
+		else if (flag.equals(DataServer.OHSAM_RECEIPT_FLAG))
+			return new OhSamReturnMessage(recipient, sender, message);
+		else if (flag.equals(DataServer.OHSAM_REQUEST_FLAG))
+			return new OhSamRequestMessage(recipient, sender, message);
 		else
 			return out;
 	}

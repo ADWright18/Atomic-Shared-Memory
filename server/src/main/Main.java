@@ -33,6 +33,7 @@ public class Main {
 	public static final String OHSAM_FLAG = "ohsam";
 	
 	public static void main(String[] args) {
+		System.out.println("Hi dad!!");
 		
 		// address the developer last had on their machine so they could run the project from the IDE and not
 		// the terminal

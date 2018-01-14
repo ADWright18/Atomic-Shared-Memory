@@ -5,6 +5,8 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import util.Address;
+import util.messages.OhSamRequestMessage;
+import util.messages.OhSamReturnMessage;
 import util.messages.ReadReturnMessage;
 import util.messages.WriteReturnMessage;
 
@@ -76,6 +78,28 @@ public class MemoryDataServer extends DataServer {
 		
 	}
 
+	public void ohsamrelay(Address returnAddress, OhSamRequestMessage message) {
+		String key = message.getKey();
+		//<reqid>:<flag>:<pcid>:<seqid>:<key>:<val>
+		
+		int seqid;
+		
+		if (this.TIME.containsKey(key))
+			seqid = Integer.parseInt(this.TIME.get(key));
+		else
+			seqid = -1;
+		
+		String val = this.DATA.get(key) + "";
+		
+		this.send(new OhSamReturnMessage(this.localAddress, returnAddress, 
+					message.getReqID() + ":" 
+						+ DataServer.OHSAM_RECEIPT_FLAG + ":" 
+						+ this.id + ":" 
+						+ seqid + ":" 
+						+ key + ":" 
+						+ val));
+	}
+	
 	@Override
 	protected void read(String key, Address returnAddress, String reqid) {
 		String value = this.DATA.get(key);

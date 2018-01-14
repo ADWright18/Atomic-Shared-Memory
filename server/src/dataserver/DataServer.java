@@ -32,6 +32,8 @@ public abstract class DataServer {
 		WRITE_REQUEST_FLAG = "write-request",
 		READ_RECEIPT_FLAG = "read-return",
 		READ_REQUEST_FLAG = "read-request",
+		OHSAM_REQUEST_FLAG = "ohsam-relay",
+		OHSAM_RECEIPT_FLAG = "ohsam-return",
 		WAIT_COMMAND_FLAG = "wait",
 		WAKE_COMMAND_FLAG = "wake";
 	
@@ -61,6 +63,7 @@ public abstract class DataServer {
 	 */
 	public DataServer(int serverid, int port, String address, String algorithm, Address[] addresses) throws SocketException, UnknownHostException {
 
+	
 		this.id = serverid;
 		this.port = port;
 		this.algorithm = algorithm;
@@ -114,7 +117,9 @@ public abstract class DataServer {
 	 * @param returnAddress	The IP/port combination this message came from; used for sending receipts
 	 */
 	protected void write(String key, String value, String timestamp, Address returnAddress, String reqid) {
+		System.out.println("doing a write");
 		if (this.algorithm.equals("ohsam")) {
+			System.out.println("doing ohsam");
 			OhSamRequestHandler newRequest = new OhSamRequestHandler(key, value, timestamp, returnAddress, reqid, this.addresses, this);
 			this.ohsamrequests.add(newRequest);
 			newRequest.start();
@@ -122,7 +127,7 @@ public abstract class DataServer {
 		else
 			this.commitData(key, value, timestamp, returnAddress, reqid);
 	}
-	
+	public abstract void ohsamrelay(Address returnAddress, OhSamRequestMessage message);
 	
 	protected abstract void commitData(String key, String value, String timestamp, Address returnAddress, String reqid);
 	
@@ -173,11 +178,14 @@ public abstract class DataServer {
 			this.reqid = reqid;
 			this.addresses = addresses;
 			
+			this.server = server;
+			
 			this.maxcount = (((int) (this.addresses.length / 2)) + 1);
 			
 		}
 		
 		public void run() {
+			System.out.println(this.server.localAddress == null);
 			for (Address serverAddress : this.addresses) {
 				this.server.send(new OhSamRequestMessage(this.server.localAddress, serverAddress, this.reqid + ":ohsam-relay:" + this.server.id + ":" + this.timestamp + ":" + this.key));
 			}
