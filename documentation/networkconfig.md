@@ -1,5 +1,11 @@
 # Network Configuration Setup
 
+## GCP Information
+* Username: (first-name).(last-name)@uconn.edu
+* Password: Email Password
+* Project Name: Atomic Shared Memory - SDP
+* Tools: Compute Engine
+
 ## VM Instance Configuration
 * OS: Debian GNU/Linux 8 (jessie)
 * Machine Type: f1-micro (1 vCPU, 0.6 GB memory)
@@ -14,3 +20,4 @@
 * Examples -> srv-sdp-001, srv-sdp-023, client-sdp-035
 
 ## VPC Settings
+* To be configured
