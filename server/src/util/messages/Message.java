@@ -1,5 +1,7 @@
 package util.messages;
 
+import java.net.UnknownHostException;
+
 import dataserver.DataServer;
 import util.Address;
 
@@ -21,6 +23,9 @@ public class Message {
 		this.sender = sender;
 		this.recipient = recipient;
 		this.parts = messageParts;
+		
+		
+		
 		this.message = "";
 		for (String part : parts)
 			this.message = this.message + Message.DELIMITER + part;
@@ -49,16 +54,22 @@ public class Message {
 		else
 			return this.parts[index];
 	}
-	
+	public int getReqID() {
+		return Integer.parseInt(this.get(0));
+	}
 	public String getFlag() {
 		return this.get(1);
 	}
 	public int getPCID() {
-		return Integer.parseInt(this.get(2), 16);
+		return Integer.parseInt(this.get(2));
 	}
-	public int getReqID() {
-		return Integer.parseInt(this.get(0), 16);
+	public float getX() {
+		return new Float(this.parts[3]);
 	}
+	public float getY() {
+		return new Float(this.parts[4]);
+	}
+	// all messages have same first 5 indexes; after this, it's up for grabs
 	
 	
 	
@@ -69,6 +80,8 @@ public class Message {
 		return this.recipient;
 	}
 	
+	
+	
 	public static Message construct(Address recipient, Address sender, String message) {
 		Message out = new Message(recipient, sender, message);
 		String flag = out.getFlag();
@@ -76,12 +89,21 @@ public class Message {
 			return out;
 		else if (flag.equals(DataServer.READ_REQUEST_FLAG))
 			return new ReadRequestMessage(recipient, sender, message);
-		else if (flag.equals(DataServer.WRITE_REQUEST_FLAG))
+		else if (flag.equals(DataServer.OHSAM_READ_REQUEST_FLAG))
+			return new OhSamReadRequestMessage(recipient, sender, message);
+		else if (flag.equals(DataServer.WRITE_REQUEST_FLAG)
+				|| flag.equals(DataServer.OHSAM_WRITE_REQUEST_FLAG))
 			return new WriteRequestMessage(recipient, sender, message);
-		else if (flag.equals(DataServer.OHSAM_RECEIPT_FLAG))
-			return new OhSamReturnMessage(recipient, sender, message);
-		else if (flag.equals(DataServer.OHSAM_REQUEST_FLAG))
-			return new OhSamRequestMessage(recipient, sender, message);
+		else if (flag.equals(DataServer.SET_LOCATION_FLAG))
+			return new SetLocationMessage(recipient, sender, message);
+		else if (flag.equals(DataServer.OHSAM_RELAY_FLAG))
+			try {
+				return new OhSamRelayMessage(recipient, sender, message);
+			} catch (UnknownHostException e) {
+				System.out.println("ERROR: " + message + " did not have a valid IP!");
+				e.printStackTrace();
+				return out;
+			}
 		else
 			return out;
 	}

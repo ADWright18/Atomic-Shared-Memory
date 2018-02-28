@@ -1,15 +1,15 @@
-java -cp bin main.Main 172.27.165.33 2001 ohsam 172.27.165.33:2002;172.27.165.33:2003
-java -cp bin main.Main 172.27.165.33 2002 ohsam 172.27.165.33:2001;172.27.165.33:2003
-java -cp bin main.Main 172.27.165.33 2003 ohsam 172.27.165.33:2001;172.27.165.33:2002
+java -cp bin main.Main 137.99.128.97 2001 ohsam 137.99.128.97:2002;137.99.128.97:2003
+java -cp bin main.Main 137.99.128.97 2002 ohsam 137.99.128.97:2001;137.99.128.97:2003
+java -cp bin main.Main 137.99.128.97 2003 ohsam 137.99.128.97:2001;137.99.128.97:2002
 
 cd Documents/GitHub/Atomic-Shared-Memory/server
-
+cls
 
 newserverset a
-newserver x 172.27.165.33 2001
+newserver x 137.99.128.97 2001
 addserverset a x
-newserver y 172.27.165.33 2002
+newserver y 137.99.128.97 2002
 addserverset a y
-newserver z 172.27.165.33 2003
+newserver z 137.99.128.97 2003
 addserverset a z
 newclient client 1 2000 a

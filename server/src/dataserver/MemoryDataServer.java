@@ -5,10 +5,6 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 
 import util.Address;
-import util.messages.OhSamRequestMessage;
-import util.messages.OhSamReturnMessage;
-import util.messages.ReadReturnMessage;
-import util.messages.WriteReturnMessage;
 
 /**
  * A subclass of DataServer.
@@ -23,15 +19,6 @@ public class MemoryDataServer extends DataServer {
 
 	
 	
-	/**
-	 * The map that stores all data associated with keys put in this object
-	 */
-	private HashMap<String, String> DATA = new HashMap<String, String>();
-	
-	/**
-	 * The map that stores all the timestamps associated with keys put in this object
-	 */
-	private HashMap<String, String> TIME = new HashMap<String, String>();
 	
 	
 	/**
@@ -41,17 +28,44 @@ public class MemoryDataServer extends DataServer {
 	 * @param port	The port at the local address that this object should listen to for UDP messages
 	 * @throws UnknownHostException 
 	 */
-	public MemoryDataServer(int serverid, int port, String address, String algorithm, Address[] addresses) throws SocketException, UnknownHostException {
-		super(serverid, port, address, algorithm, addresses);
+	public MemoryDataServer(int serverid, int port, String address, Address[] addresses) throws SocketException, UnknownHostException {
+		super(serverid, port, address, addresses);
 	}
 	
 	
+	/**
+	 * The map that stores all data associated with keys put in this object
+	 */
+	private HashMap<String, String> DATA = new HashMap<String, String>();
 	
-	protected void commitData(String key, String value, String timestamp, Address returnAddress, String reqid) {
+	@Override
+	protected String getData(String key) {
+		return this.DATA.get(key);
+	}
+	
+	
+	/**
+	 * The map that stores all the timestamps associated with keys put in this object
+	 */
+	private HashMap<String, Integer> TIME = new HashMap<String, Integer>();
+	
+	@Override
+	protected int getTime(String key) {
+		if (this.TIME.containsKey(key))
+			return this.TIME.get(key);
+		else
+			return 0;
+	}
+
+	/**
+	 * This method is how the MemoryDataServer commits data to its stores. This implementation is the easiest: it simply stores the keys and values in a HashMap
+	 */
+	@Override
+	protected void commitData(String key, String value, int timestamp) {
 		
 		if (this.DATA.containsKey(key)) {
-			int localStamp = Integer.parseInt(this.TIME.get(key));
-			int newStamp = Integer.parseInt(timestamp);
+			int localStamp = this.TIME.get(key);
+			int newStamp = timestamp;
 			
 			if (localStamp < newStamp) { // if the local stamp is older than the new stamp, we update
 				//System.out.println("We're updating!");
@@ -64,54 +78,17 @@ public class MemoryDataServer extends DataServer {
 			this.TIME.put(key, timestamp);
 		}
 		
-		// no matter what, send a receipt
-		WriteReturnMessage message = new WriteReturnMessage(
-				new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), 
-				returnAddress, 
-				reqid, 
-				this.id + "",
-				key);
-		
-		this.send(message);
-		
 		
 		
 	}
 
-	public void ohsamrelay(Address returnAddress, OhSamRequestMessage message) {
-		String key = message.getKey();
-		//<reqid>:<flag>:<pcid>:<seqid>:<key>:<val>
-		
-		int seqid;
-		
-		if (this.TIME.containsKey(key))
-			seqid = Integer.parseInt(this.TIME.get(key));
-		else
-			seqid = -1;
-		
-		String val = this.DATA.get(key) + "";
-		
-		this.send(new OhSamReturnMessage(this.localAddress, returnAddress, 
-					message.getReqID() + ":" 
-						+ DataServer.OHSAM_RECEIPT_FLAG + ":" 
-						+ this.id + ":" 
-						+ seqid + ":" 
-						+ key + ":" 
-						+ val));
-	}
 	
-	@Override
-	protected void read(String key, Address returnAddress, String reqid) {
-		String value = this.DATA.get(key);
-		String timestamp = this.TIME.get(key);
-		
-		if (value == null && timestamp == null)
-			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, this.id + "", "-1", "null"));
-		else if (value == null || timestamp == null)
-			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, this.id + "",  "-1", "data-sync-error"));
-		else
-			this.send(new ReadReturnMessage(new Address(this.soc.getLocalAddress(), this.soc.getLocalPort()), returnAddress, reqid, this.id + "", timestamp, value));
-	}
+
+
+
+	
+
+	
 	
 	
 
