@@ -35,7 +35,7 @@ public class Main {
 		int port;
 
 		if (args.length == 0) {
-			 address = "10.142.0.2";
+			 address = "10.142.0.3";
 			 port = 2000;
 		}
 
