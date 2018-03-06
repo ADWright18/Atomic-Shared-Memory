@@ -42,17 +42,17 @@ public class MessageParser {
 
 		if (message instanceof WriteRequestMessage) {
 			this.server.write(
-					(WriteRequestMessage message).getKey(),
-					(WriteRequestMessage message).getVal(),
-					(WriteRequestMessage message).getSeqId() + "",
-					(WriteRequestMessage message).sender(),
-					(WriteRequestMessage message).getReqID() + "");
+					((WriteRequestMessage) message).getKey(),
+					((WriteRequestMessage) message).getVal(),
+					((WriteRequestMessage) message).getSeqId() + "",
+					((WriteRequestMessage) message).sender(),
+					((WriteRequestMessage) message).getReqID() + "");
 		}
 		else if (message instanceof ReadRequestMessage) {
 			this.server.read(
-					(ReadRequestMessage message).getKey(),
-					(ReadRequestMessage message).sender(),
-					(ReadRequestMessage message).getReqID() + "");
+					((ReadRequestMessage) message).getKey(),
+					((ReadRequestMessage) message).sender(),
+					((ReadRequestMessage) message).getReqID() + "");
 
 		}
 

@@ -6,11 +6,13 @@
 * Project Name: Atomic Shared Memory - SDP
 * Tools: Compute Engine
 
+##
+
 ## VM Instance Configuration
 * OS: Debian GNU/Linux 8 (jessie)
 * Machine Type: f1-micro (1 vCPU, 0.6 GB memory)
 * Zone: us-east1-b
-* Label: dev:server
+* Label: dev:server or dev:client
 * Network Tag: network-sdp
 
 ## Server/Client Naming Convention
