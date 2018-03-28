@@ -42,67 +42,79 @@ public class MessageParser {
 			System.out.println("Flag null. No operations performed. Message: " + message);
 			return;
 		}
-
-		// Check to see if the server is asleep. If it is, we just leave.
-		if (!this.server.awake) {
-			if (flag.equals("wake"))
-				this.server.wake();
-			else
-				return;
-		}
-
-		// Control messages -- not affected by drop rate, but affected by server being awake or not
-		if (flag.equals("respond"))
-			this.server.send(new Message(
-					message.recipient(), 
-					message.sender(),
-					"response"));
-
-		// Replies back to server 
-		// TODO deprecate this
-		else if (flag.equals("echo"))
-			this.server.send(new Message(
-					message.recipient(), 
-					message.sender(),  
-					message.toString()));
-
-		// Sleep functions
-		else if (flag.equals("wait"))
-			this.server.sleep();
-
+		
+		if (message instanceof ReliableReadMessage)
+			this.server.read(
+					((ReliableReadMessage) message).getKey(), 
+					((ReliableReadMessage) message).sender(),
+					((ReliableReadMessage) message).getReqID(),
+					((ReliableReadMessage) message).getPCID(),
+					((ReliableReadMessage) message).getFlag(),
+					this.server.getLocation().x,
+					this.server.getLocation().y);
 		else if (message instanceof SetLocationMessage)
 			this.server.setLocation(
 					((SetLocationMessage) message).getX(),
 					((SetLocationMessage) message).getY());
-
-
-		// else, on to the messages affected by drop rate...
-		// this could be in the if/else chain that already exists by putting the if-statement handling the drop as an else-if,
-		// but I think this way is a little clearer.
 		else {
-			try {
-				// 1/droprate probability of just ignoring this message
-				if (new Random().nextInt(100) < this.server.droprate)
+			// Check to see if the server is asleep. If it is, we just leave.
+			if (!this.server.awake) {
+				if (flag.equals("wake"))
+					this.server.wake();
+				else
 					return;
-
-
-
-				
-					new ClientPingSimulator(this.server, message, this.server.getPing(message.getX(), message.getY())).start();
-			} catch (IndexOutOfBoundsException e) {
-				System.out.println("ERROR: Something was out of bounds for the message " + message);
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				System.out.println("ERROR: Something was null when handling the message " + message);
-				e.printStackTrace();
-			} catch (Exception e) {
-				System.out.println("ERROR: Something went wrong when handling the message " + message);
-				e.printStackTrace();
 			}
-		}
 
-		// we should be done now
-		return;
+			// Control messages -- not affected by drop rate, but affected by server being awake or not
+			if (flag.equals("respond"))
+				this.server.send(new Message(
+						message.recipient(), 
+						message.sender(),
+						"response"));
+
+			if (flag.equals("drop"))
+				this.server.droprate = Integer.parseInt(message.get(2));
+
+			// Replies back to server 
+			// TODO deprecate this
+			else if (flag.equals("echo"))
+				this.server.send(new Message(
+						message.recipient(), 
+						message.sender(),  
+						message.toString()));
+
+			// Sleep functions
+			else if (flag.equals("wait"))
+				this.server.sleep();
+
+
+
+			// else, on to the messages affected by drop rate...
+			// this could be in the if/else chain that already exists by putting the if-statement handling the drop as an else-if,
+			// but I think this way is a little clearer.
+			else {
+				try {
+					// 1/droprate probability of just ignoring this message
+					if (new Random().nextInt(100) < this.server.droprate)
+						return;
+
+					else
+						new ClientPingSimulator(this.server, message, this.server.getPing(message.getX(), message.getY())).start();
+				} catch (IndexOutOfBoundsException e) {
+					System.out.println("ERROR: Something was out of bounds for the message " + message);
+					e.printStackTrace();
+				} catch (NullPointerException e) {
+					System.out.println("ERROR: Something was null when handling the message " + message);
+					e.printStackTrace();
+				} catch (Exception e) {
+					System.out.println("ERROR: Something went wrong when handling the message " + message);
+					e.printStackTrace();
+				}
+			}
+
+			// we should be done now
+			return;
+		}
 
 	}
 
@@ -110,14 +122,14 @@ public class MessageParser {
 		public final long ping;
 		public final Message message;
 		public final DataServer server;
-		
+
 		public ClientPingSimulator(DataServer server, Message message, long ping) {
 			this.ping = ping;
 			this.message = message;
 			this.server = server;
 		}
-		
-		
+
+
 		@Override
 		public void run() {
 			try {
@@ -125,10 +137,10 @@ public class MessageParser {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+
 			Message message = this.message;
-			
-				
+
+
 			// get these messages from clients
 			if (message instanceof WriteRequestMessage) {
 				this.server.write(
@@ -161,9 +173,9 @@ public class MessageParser {
 						((OhSamReadRequestMessage) message).getX(),
 						((OhSamReadRequestMessage) message).getY());
 			}
-			
+
 			// get these messages from servers
-			if (message instanceof OhSamRelayMessage) {
+			else if (message instanceof OhSamRelayMessage) {
 				int reqid = message.getReqID();
 				int clientid = ((OhSamRelayMessage) message).getClientID();
 				this.server.addRelay(
@@ -189,6 +201,9 @@ public class MessageParser {
 							this.server.getTime(((OhSamRelayMessage) message).getKey()), 
 							this.server.getData(((OhSamRelayMessage) message).getKey())));
 
+			}
+			else {
+				System.out.println("Could not recognize message: " + message);
 			}
 		}
 

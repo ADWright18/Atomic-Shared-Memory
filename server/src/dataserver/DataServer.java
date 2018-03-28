@@ -36,6 +36,7 @@ public abstract class DataServer {
 	public final static String 
 	WRITE_RECEIPT_FLAG = "write-return",
 	WRITE_REQUEST_FLAG = "write-request",
+	RELIABLE_READ_FLAG = "reliable-read",
 	READ_RECEIPT_FLAG = "read-return",
 	READ_REQUEST_FLAG = "read-request",
 	OHSAM_WRITE_REQUEST_FLAG = "ohsam-write-request",
@@ -149,7 +150,7 @@ public abstract class DataServer {
 			
 		}
 
-		else if (flag.equals(DataServer.READ_REQUEST_FLAG)) {
+		else if (flag.equals(DataServer.READ_REQUEST_FLAG) || flag.equals(DataServer.RELIABLE_READ_FLAG)) {
 			
 			// 
 			if (value == null && seqid <= 0) {
@@ -297,7 +298,7 @@ public abstract class DataServer {
 
 	}
 
-	public final double DISTANCE_PING_RATIO = 1.0; // 1ms ping / unit distance
+	public final double DISTANCE_PING_RATIO = 10.0; // 1ms ping / unit distance
 	/**
 	 * 
 	 * @param targetX
@@ -315,6 +316,9 @@ public abstract class DataServer {
 
 
 		// returns double rounded to nearest long, which is good enough
+		
+		System.out.println("Ping: " + distance);
+		
 		return (long) (distance * DISTANCE_PING_RATIO / 2);
 	}
 

@@ -48,7 +48,7 @@ public class Message {
 		return this.message;
 	}
 	
-	protected String get(int index) {
+	public String get(int index) {
 		if (index >= this.parts.length || index < 0)
 			return null;
 		else
@@ -87,6 +87,8 @@ public class Message {
 		String flag = out.getFlag();
 		if (flag == null) 
 			return out;
+		else if (flag.equals(DataServer.RELIABLE_READ_FLAG))
+			return new ReliableReadMessage(recipient, sender, message);
 		else if (flag.equals(DataServer.READ_REQUEST_FLAG))
 			return new ReadRequestMessage(recipient, sender, message);
 		else if (flag.equals(DataServer.OHSAM_READ_REQUEST_FLAG))
