@@ -1,13 +1,13 @@
 # UConn Senior Design Project - Atomic Distributed Shared Memory for Networks
 
 ## Team Members
-*Christian Carmellinin
-*Dylan Ramsay
-*Adomous Wright
-*Kevin Konrad
+-Christian Carmellinin
+-Dylan Ramsay
+-Adomous Wright
+-Kevin Konrad
 
 ## Introdction
-*With the advance of networking technology,
+-With the advance of networking technology,
 communication has become a major systemic activity in the field of
 distributed systems. In a network with a central server processing
 read and write requests from several client machines, there exists
